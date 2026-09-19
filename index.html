@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Daniel Aristizábal Torres">
+<meta name="description" content="Recommends Scopus-indexed journals (SJR) related to an abstract, filterable by quartile.">
+<title>Journal Selector</title>
+<style>
+  :root{
+    --bg:#f7f7f5; --surface:#ffffff; --surface-2:#f1f0ec; --text:#1a1a18; --muted:#6b6b66;
+    --border:#e2e1db; --accent:#1f4e79; --accent-fg:#ffffff;
+    --q1-bg:#e7f4ec; --q1-fg:#1c6b3f; --q2-bg:#eaf1fb; --q2-fg:#1f4e79;
+    --q3-bg:#fdf3d8; --q3-fg:#8a6100; --q4-bg:#fbe9e9; --q4-fg:#a02020;
+    --neutral-bg:#eeedf0; --neutral-fg:#565660;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#17171a; --surface:#212126; --surface-2:#2a2a30; --text:#ececef; --muted:#a0a0a8;
+      --border:#34343c; --accent:#5b9bd5; --accent-fg:#0a0a0c;
+      --q1-bg:#163323; --q1-fg:#7fd6a1; --q2-bg:#1c2c3d; --q2-fg:#8fc0ec;
+      --q3-bg:#3a2f12; --q3-fg:#f0c65b; --q4-bg:#3a1c1c; --q4-fg:#f09595;
+      --neutral-bg:#2c2c33; --neutral-fg:#b4b4bc;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.55;font-size:15px}
+  .wrap{max-width:920px;margin:0 auto;padding:2rem 1.25rem 4rem}
+  header h1{font-size:1.5rem;margin:0 0 .35rem;display:flex;align-items:center;gap:.5rem}
+  header p{color:var(--muted);margin:0 0 1.4rem;max-width:68ch}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem}
+  label{font-weight:600;font-size:.9rem;display:block;margin-bottom:.5rem}
+  textarea{width:100%;min-height:160px;resize:vertical;border:1px solid var(--border);border-radius:10px;
+    padding:.75rem;font-family:inherit;font-size:14px;background:var(--surface-2);color:var(--text);line-height:1.5}
+  .counter{font-size:.75rem;color:var(--muted);margin-top:.35rem;text-align:right}
+  .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.1rem;margin-top:.5rem}
+  .filter-group legend{font-weight:600;font-size:.85rem;margin-bottom:.45rem;padding:0}
+  .chip-check{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;margin:.15rem .5rem .15rem 0;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:.3rem .65rem;cursor:pointer}
+  .chip-check input{accent-color:var(--accent);cursor:pointer}
+  input[type=text]{width:100%;border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem;
+    background:var(--surface-2);color:var(--text);font:inherit;font-size:.88rem}
+  .ac-list{position:absolute;top:100%;left:0;right:0;z-index:20;margin-top:.25rem;
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    max-height:240px;overflow-y:auto;box-shadow:0 6px 20px rgba(0,0,0,.15);display:none}
+  .ac-list.on{display:block}
+  .ac-item{padding:.5rem .7rem;font-size:.85rem;cursor:pointer}
+  .ac-item:hover,.ac-item.active{background:var(--surface-2)}
+  .ac-empty{padding:.5rem .7rem;font-size:.85rem;color:var(--muted)}
+  .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:1rem}
+  button{font:inherit;font-weight:600;border-radius:9px;padding:.65rem 1.2rem;cursor:pointer;border:1px solid transparent}
+  .btn-primary{background:var(--accent);color:var(--accent-fg)}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed}
+  .btn-ghost{background:transparent;color:var(--text);border-color:var(--border)}
+  .btn-ghost:hover{background:var(--surface-2)}
+  .status{font-size:.82rem;color:var(--muted);margin-top:.6rem;min-height:1.2em}
+  .notice{background:var(--q3-bg);color:var(--q3-fg);border-radius:10px;padding:.7rem .9rem;font-size:.8rem;margin-bottom:1.1rem}
+  .summary{font-size:.82rem;color:var(--muted);margin:0 0 .8rem}
+  .results{display:flex;flex-direction:column;gap:.6rem}
+  .jcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem}
+  .jcard .top{display:flex;justify-content:space-between;gap:.8rem;align-items:flex-start;flex-wrap:wrap}
+  .jcard h3{margin:0;font-size:1rem}
+  .jcard h3 a{color:var(--text);text-decoration:none}
+  .jcard h3 a:hover{color:var(--accent);text-decoration:underline}
+  .badges{display:flex;gap:.35rem;flex-wrap:wrap;flex:0 0 auto}
+  .pill{font-size:.68rem;font-weight:700;padding:.22rem .55rem;border-radius:999px;white-space:nowrap}
+  .pQ1{background:var(--q1-bg);color:var(--q1-fg)} .pQ2{background:var(--q2-bg);color:var(--q2-fg)}
+  .pQ3{background:var(--q3-bg);color:var(--q3-fg)} .pQ4{background:var(--q4-bg);color:var(--q4-fg)}
+  .pN{background:var(--neutral-bg);color:var(--neutral-fg)}
+  .pMatch{background:var(--surface-2);color:var(--accent);border:1px solid var(--border)}
+  .pOA{background:var(--q1-bg);color:var(--q1-fg)}
+  .pApc{background:var(--q3-bg);color:var(--q3-fg)}
+  .jcard .meta{font-size:.8rem;color:var(--muted);margin:.35rem 0 0}
+  .jcard .access{margin-top:.4rem}
+  .jcard .cats{font-size:.76rem;color:var(--muted);margin-top:.4rem;display:flex;flex-wrap:wrap;gap:.3rem}
+  .jcard .cats span{background:var(--surface-2);border-radius:6px;padding:.12rem .45rem}
+  .jcard .actions{margin-top:.6rem;display:flex;gap:.5rem;flex-wrap:wrap}
+  .btn-sjr{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:600;
+    padding:.35rem .75rem;border-radius:8px;background:var(--surface-2);color:var(--accent);
+    border:1px solid var(--border);text-decoration:none}
+  .btn-sjr:hover{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+  .empty{color:var(--muted);font-size:.9rem;text-align:center;padding:2rem 0}
+  footer{margin-top:2.5rem;color:var(--muted);font-size:.78rem;border-top:1px solid var(--border);padding-top:1.1rem}
+  footer a{color:var(--accent)}
+  details summary{cursor:pointer;font-size:.85rem;color:var(--muted);margin-top:.3rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📚 Journal Selector</h1>
+    <p>Paste your article's abstract. The app searches Crossref (falling back to OpenAlex if unavailable) for thematically related work and identifies where it was published, cross-referenced with the Scimago (Scopus) ranking to show quartile, SJR and subject area.</p>
+  </header>
+
+  <div class="notice">
+    ⚠️ The quartile shown is <strong>SJR / Scopus</strong> (free, public data). The <strong>Web of Science JCR quartile</strong> requires a paid Clarivate subscription and is not available in this tool.
+  </div>
+
+  <h2 style="font-size:1.1rem;margin:0 0 .8rem">Find by abstract</h2>
+  <div class="card">
+    <label for="abstract">Abstract</label>
+    <textarea id="abstract" placeholder="Paste your article's abstract here, in English or Spanish..."></textarea>
+    <div class="counter" id="counter">0 words</div>
+
+    <label for="keywordsInput" style="margin-top:.9rem">Keywords <span style="color:var(--q4-fg)">*</span> (5–8, comma-separated)</label>
+    <input type="text" id="keywordsInput" placeholder="e.g. vehicle routing, cold chain logistics, refrigerated transport, operations research, thermodynamic modeling" required>
+    <div class="counter" style="text-align:left">The abstract drives the main search. These keywords are only used to recommend journals by keyword if too few (or none) in your quartile turn up directly.</div>
+
+    <div class="filters">
+      <fieldset class="filter-group" style="border:none;padding:0;margin:0">
+        <legend>Desired quartile</legend>
+        <label class="chip-check"><input type="checkbox" class="quartile-check" value="Q1" checked> Q1</label>
+        <label class="chip-check"><input type="checkbox" class="quartile-check" value="Q2" checked> Q2</label>
+        <label class="chip-check"><input type="checkbox" class="quartile-check" value="Q3" checked> Q3</label>
+        <label class="chip-check"><input type="checkbox" class="quartile-check" value="Q4" checked> Q4</label>
+      </fieldset>
+
+      <fieldset class="filter-group" style="border:none;padding:0;margin:0">
+        <legend>Country / publisher (optional)</legend>
+        <input type="text" id="filterText" placeholder="e.g. Elsevier, Colombia...">
+      </fieldset>
+    </div>
+
+    <div class="row">
+      <button class="btn-primary" id="searchBtn">Find journals</button>
+      <button class="btn-ghost" id="clearBtn" type="button">Clear</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div id="resultsWrap"></div>
+
+  <h2 style="font-size:1.1rem;margin:2rem 0 .8rem">Or browse the catalog directly</h2>
+  <div class="card">
+    <p style="margin:0 0 1rem;color:var(--muted);font-size:.85rem">No abstract needed — filter the full Scopus-indexed catalog by subject area, category, country and quartile.</p>
+    <div class="filters">
+      <fieldset class="filter-group" style="border:none;padding:0;margin:0">
+        <label for="browseArea">Area</label>
+        <select id="browseArea"><option value="">Any</option></select>
+      </fieldset>
+      <fieldset class="filter-group ac-wrap" style="border:none;padding:0;margin:0;position:relative">
+        <label for="browseCategory">Category</label>
+        <input type="text" id="browseCategory" placeholder="e.g. Transportation" autocomplete="off">
+      </fieldset>
+      <fieldset class="filter-group ac-wrap" style="border:none;padding:0;margin:0;position:relative">
+        <label for="browseCountry">Country</label>
+        <input type="text" id="browseCountry" placeholder="e.g. Colombia" autocomplete="off">
+      </fieldset>
+      <fieldset class="filter-group" style="border:none;padding:0;margin:0">
+        <label for="browseMaxQuartile">Max quartile</label>
+        <select id="browseMaxQuartile">
+          <option value="1">Q1</option>
+          <option value="2">Q2</option>
+          <option value="3">Q3</option>
+          <option value="4" selected>Q4</option>
+        </select>
+      </fieldset>
+    </div>
+    <div class="row">
+      <button class="btn-primary" id="browseBtn">Browse journals</button>
+      <button class="btn-ghost" id="browseClearBtn" type="button">Clear</button>
+    </div>
+    <div class="status" id="browseStatus"></div>
+  </div>
+
+  <div id="browseResultsWrap"></div>
+
+  <footer>
+    Data: <a href="https://api.crossref.org" target="_blank" rel="noopener">Crossref</a>, with
+    <a href="https://api.openalex.org" target="_blank" rel="noopener">OpenAlex</a> as fallback (topical relatedness) and for journal
+    website/open-access lookup ·
+    <a href="https://www.scimagojr.com" target="_blank" rel="noopener">Scimago Journal Rank 2024</a> (SJR/Scopus quartile).
+    100% in the browser, no backend, no accounts.
+    <br>Daniel Aristizábal Torres — a decision-support tool, not a substitute for editorial judgment.
+  </footer>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
