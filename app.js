@@ -642,6 +642,12 @@ let categoriesByArea = null;
 let allCategoriesSorted = null;
 let allCountriesSorted = null;
 
+// Called once, after the dataset first loads. Until then the browse fields
+// are disabled (see the loadData().then(...) call at the bottom of this
+// file) so a click before the ~16 MB dataset has finished downloading shows
+// a "Loading catalog..." state instead of silently doing nothing — with the
+// autocomplete listeners attached only once this runs, an early click could
+// otherwise land before they existed and look permanently stuck.
 function populateBrowseFilters() {
   const areas = new Set();
   const countries = new Set();
@@ -671,13 +677,20 @@ function populateBrowseFilters() {
     opt.textContent = a;
     areaSelect.appendChild(opt);
   }
-  setupAutocomplete(document.getElementById("browseCategory"), currentCategoryOptions);
-  setupAutocomplete(document.getElementById("browseCountry"), () => allCountriesSorted);
+  const categoryInput = document.getElementById("browseCategory");
+  const countryInput = document.getElementById("browseCountry");
+  areaSelect.disabled = false;
+  categoryInput.disabled = false;
+  categoryInput.placeholder = "e.g. Transportation";
+  countryInput.disabled = false;
+  countryInput.placeholder = "e.g. Colombia (optional)";
 }
 
 // The category field's own suggestion list, live-narrowed to whichever area
-// is currently selected (or the full ~310 when no area is picked).
+// is currently selected (or the full ~310 when no area is picked). Data may
+// not have finished loading yet, in which case there's nothing to suggest.
 function currentCategoryOptions() {
+  if (!allCategoriesSorted) return [];
   const area = document.getElementById("browseArea").value;
   return area && categoriesByArea.has(area) ? [...categoriesByArea.get(area)].sort() : allCategoriesSorted;
 }
@@ -819,6 +832,28 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     });
   });
 });
+
+// Autocomplete listeners are attached right away, independent of whether the
+// dataset has finished loading — currentCategoryOptions() and the country
+// getter both return [] until it has. Attaching them only inside
+// populateBrowseFilters() (as before) left a window, right after page load,
+// where a click into these fields did nothing at all because no listener
+// existed yet to respond to it.
+setupAutocomplete(document.getElementById("browseCategory"), currentCategoryOptions);
+setupAutocomplete(document.getElementById("browseCountry"), () => allCountriesSorted || []);
+
+// The area/category/country fields depend on the dataset (options, or the
+// area->category map); disable them with a loading placeholder until it's
+// ready instead of leaving them silently inert. Max quartile and the browse
+// button need no data, so they stay enabled — the button's own click handler
+// already awaits loadData().
+document.getElementById("browseArea").disabled = true;
+const browseCategoryEl = document.getElementById("browseCategory");
+const browseCountryEl = document.getElementById("browseCountry");
+browseCategoryEl.disabled = true;
+browseCategoryEl.placeholder = "Loading catalog...";
+browseCountryEl.disabled = true;
+browseCountryEl.placeholder = "Loading catalog...";
 
 // Preload the dataset in the background so the first search is fast.
 loadData().then(populateBrowseFilters).catch(() => {});
