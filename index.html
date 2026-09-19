@@ -6,41 +6,56 @@
 <meta name="author" content="Daniel Aristizábal Torres">
 <meta name="description" content="Recommends Scopus-indexed journals (SJR) related to an abstract, filterable by quartile.">
 <title>Journal Selector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;0,600;0,700;1,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#f7f7f5; --surface:#ffffff; --surface-2:#f1f0ec; --text:#1a1a18; --muted:#6b6b66;
-    --border:#e2e1db; --accent:#1f4e79; --accent-fg:#ffffff;
-    --q1-bg:#e7f4ec; --q1-fg:#1c6b3f; --q2-bg:#eaf1fb; --q2-fg:#1f4e79;
-    --q3-bg:#fdf3d8; --q3-fg:#8a6100; --q4-bg:#fbe9e9; --q4-fg:#a02020;
-    --neutral-bg:#eeedf0; --neutral-fg:#565660;
+    --bg:#FBFAF7; --surface:#ffffff; --surface-2:#F3F1EA; --text:#201E1A; --muted:#7A7566;
+    --border:#E7E2D6; --accent:#2B3A67; --accent-fg:#ffffff; --accent2:#C1503A;
+    --q1:#2B3A67; --q1-bg:#E9EDF7; --q1-fg:#2B3A67;
+    --q2:#3E6B6B; --q2-bg:#E7F0EF; --q2-fg:#2E5252;
+    --q3:#B98A3D; --q3-bg:#F7EFDD; --q3-fg:#8A6100;
+    --q4:#C1503A; --q4-bg:#FBE9E3; --q4-fg:#B24B31;
+    --neutral-bg:#F3F1EA; --neutral-fg:#5C5748;
+    --serif:'Newsreader',Georgia,serif; --sans:'Public Sans',-apple-system,BlinkMacSystemFont,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:#17171a; --surface:#212126; --surface-2:#2a2a30; --text:#ececef; --muted:#a0a0a8;
-      --border:#34343c; --accent:#5b9bd5; --accent-fg:#0a0a0c;
-      --q1-bg:#163323; --q1-fg:#7fd6a1; --q2-bg:#1c2c3d; --q2-fg:#8fc0ec;
-      --q3-bg:#3a2f12; --q3-fg:#f0c65b; --q4-bg:#3a1c1c; --q4-fg:#f09595;
-      --neutral-bg:#2c2c33; --neutral-fg:#b4b4bc;
+      --bg:#18171B; --surface:#212027; --surface-2:#2B2A33; --text:#EDE9E1; --muted:#A79E8E;
+      --border:#3A3843; --accent:#8CA0E0; --accent-fg:#12142099; --accent-fg:#10121C; --accent2:#E38468;
+      --q1:#8CA0E0; --q1-bg:#1C2036; --q1-fg:#AEBEED;
+      --q2:#79B8AF; --q2-bg:#16211F; --q2-fg:#9BD4CB;
+      --q3:#E0B564; --q3-bg:#2C2313; --q3-fg:#F0C97E;
+      --q4:#E38468; --q4-bg:#2E1A15; --q4-fg:#F0A088;
+      --neutral-bg:#2B2A33; --neutral-fg:#BDB6A9;
     }
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg);color:var(--text);line-height:1.55;font-size:15px}
+  body{margin:0;font-family:var(--sans);
+    background:var(--bg);color:var(--text);line-height:1.55;font-size:15px;
+    background-image:radial-gradient(circle,color-mix(in srgb, var(--text) 4%, transparent) 1px, transparent 1px);
+    background-size:20px 20px}
   .wrap{max-width:920px;margin:0 auto;padding:2rem 1.25rem 4rem}
-  header h1{font-size:1.5rem;margin:0 0 .35rem;display:flex;align-items:center;gap:.5rem}
-  header p{color:var(--muted);margin:0 0 1.4rem;max-width:68ch}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem}
-  label{font-weight:600;font-size:.9rem;display:block;margin-bottom:.5rem}
+  header h1{font-family:var(--serif);font-weight:700;font-size:1.7rem;margin:0 0 .5rem;display:flex;align-items:center;gap:.6rem;letter-spacing:-.01em}
+  .mark{flex:0 0 auto;border-radius:3px;overflow:hidden}
+  header p{color:var(--muted);margin:0 0 1.4rem;max-width:68ch;font-size:.92rem}
+  h2.section{font-family:var(--serif);font-weight:600;font-size:1.15rem;color:var(--text)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem;
+    box-shadow:0 1px 0 color-mix(in srgb, var(--border) 60%, transparent)}
+  label{font-weight:600;font-size:.85rem;display:block;margin-bottom:.5rem;font-family:var(--sans)}
   textarea{width:100%;min-height:160px;resize:vertical;border:1px solid var(--border);border-radius:10px;
-    padding:.75rem;font-family:inherit;font-size:14px;background:var(--surface-2);color:var(--text);line-height:1.5}
-  .counter{font-size:.75rem;color:var(--muted);margin-top:.35rem;text-align:right}
+    padding:.75rem;font-family:var(--sans);font-size:14px;background:var(--surface-2);color:var(--text);line-height:1.5}
+  .counter{font-size:.74rem;color:var(--muted);margin-top:.35rem;text-align:right}
   .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.1rem;margin-top:.5rem}
-  .filter-group legend{font-weight:600;font-size:.85rem;margin-bottom:.45rem;padding:0}
+  .filter-group legend{font-weight:600;font-size:.8rem;margin-bottom:.45rem;padding:0;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
   .chip-check{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;margin:.15rem .5rem .15rem 0;
-    background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:.3rem .65rem;cursor:pointer}
+    background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:.3rem .65rem;cursor:pointer;font-weight:500}
   .chip-check input{accent-color:var(--accent);cursor:pointer}
   input[type=text]{width:100%;border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem;
     background:var(--surface-2);color:var(--text);font:inherit;font-size:.88rem}
+  select{border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem;background:var(--surface-2);
+    color:var(--text);font:inherit;font-size:.88rem;width:100%}
   .ac-list{position:absolute;top:100%;left:0;right:0;z-index:20;margin-top:.25rem;
     background:var(--surface);border:1px solid var(--border);border-radius:10px;
     max-height:240px;overflow-y:auto;box-shadow:0 6px 20px rgba(0,0,0,.15);display:none}
@@ -49,8 +64,10 @@
   .ac-item:hover,.ac-item.active{background:var(--surface-2)}
   .ac-empty{padding:.5rem .7rem;font-size:.85rem;color:var(--muted)}
   .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:1rem}
-  button{font:inherit;font-weight:600;border-radius:9px;padding:.65rem 1.2rem;cursor:pointer;border:1px solid transparent}
-  .btn-primary{background:var(--accent);color:var(--accent-fg)}
+  button{font:inherit;font-weight:600;border-radius:9px;padding:.65rem 1.3rem;cursor:pointer;border:1px solid transparent}
+  .btn-primary{background:#201E1A;color:#fff;font-family:var(--serif);font-style:italic;font-weight:600;
+    border-bottom:3px solid var(--accent2)}
+  .btn-primary:hover{background:var(--accent)}
   .btn-primary:disabled{opacity:.5;cursor:not-allowed}
   .btn-ghost{background:transparent;color:var(--text);border-color:var(--border)}
   .btn-ghost:hover{background:var(--surface-2)}
@@ -58,24 +75,30 @@
   .notice{background:var(--q3-bg);color:var(--q3-fg);border-radius:10px;padding:.7rem .9rem;font-size:.8rem;margin-bottom:1.1rem}
   .summary{font-size:.82rem;color:var(--muted);margin:0 0 .8rem}
   .results{display:flex;flex-direction:column;gap:.6rem}
-  .jcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem}
+  .jcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;
+    box-shadow:0 1px 0 color-mix(in srgb, var(--border) 60%, transparent)}
   .jcard .top{display:flex;justify-content:space-between;gap:.8rem;align-items:flex-start;flex-wrap:wrap}
-  .jcard h3{margin:0;font-size:1rem}
+  .jcard h3{margin:0;font-size:1.08rem;font-family:var(--serif);font-weight:600}
   .jcard h3 a{color:var(--text);text-decoration:none}
   .jcard h3 a:hover{color:var(--accent);text-decoration:underline}
-  .badges{display:flex;gap:.35rem;flex-wrap:wrap;flex:0 0 auto}
+  .badges{display:flex;gap:.4rem;flex-wrap:wrap;flex:0 0 auto;align-items:center}
   .pill{font-size:.68rem;font-weight:700;padding:.22rem .55rem;border-radius:999px;white-space:nowrap}
+  .qbadge{font-size:.68rem;font-weight:700;padding:.24rem .55rem .24rem .48rem;border-radius:10px 3px 3px 3px;
+    white-space:nowrap;color:#fff}
+  .qQ1{background:var(--q1)} .qQ2{background:var(--q2)} .qQ3{background:var(--q3)} .qQ4{background:var(--q4)}
+  .qN{background:var(--neutral-fg)}
   .pQ1{background:var(--q1-bg);color:var(--q1-fg)} .pQ2{background:var(--q2-bg);color:var(--q2-fg)}
   .pQ3{background:var(--q3-bg);color:var(--q3-fg)} .pQ4{background:var(--q4-bg);color:var(--q4-fg)}
   .pN{background:var(--neutral-bg);color:var(--neutral-fg)}
-  .pMatch{background:var(--surface-2);color:var(--accent);border:1px solid var(--border)}
+  .pMatch{background:transparent;color:var(--accent2);border:1px solid var(--accent2)}
   .pOA{background:var(--q1-bg);color:var(--q1-fg)}
   .pApc{background:var(--q3-bg);color:var(--q3-fg)}
-  .jcard .meta{font-size:.8rem;color:var(--muted);margin:.35rem 0 0}
-  .jcard .access{margin-top:.4rem}
-  .jcard .cats{font-size:.76rem;color:var(--muted);margin-top:.4rem;display:flex;flex-wrap:wrap;gap:.3rem}
+  .jcard .meta{font-size:.8rem;color:var(--muted);margin:.4rem 0 0}
+  .jcard .meta .sjr{font-family:var(--mono);color:var(--accent);font-weight:500;font-size:.79rem}
+  .jcard .access{margin-top:.45rem}
+  .jcard .cats{font-size:.76rem;color:var(--muted);margin-top:.45rem;display:flex;flex-wrap:wrap;gap:.3rem}
   .jcard .cats span{background:var(--surface-2);border-radius:6px;padding:.12rem .45rem}
-  .jcard .actions{margin-top:.6rem;display:flex;gap:.5rem;flex-wrap:wrap}
+  .jcard .actions{margin-top:.65rem;display:flex;gap:.5rem;flex-wrap:wrap}
   .btn-sjr{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:600;
     padding:.35rem .75rem;border-radius:8px;background:var(--surface-2);color:var(--accent);
     border:1px solid var(--border);text-decoration:none}
@@ -89,7 +112,15 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>📚 Journal Selector</h1>
+    <h1>
+      <svg class="mark" width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+        <rect x="0" y="0" width="12" height="12" fill="#2B3A67"></rect>
+        <rect x="14" y="0" width="12" height="12" fill="#3E6B6B"></rect>
+        <rect x="0" y="14" width="12" height="12" fill="#B98A3D"></rect>
+        <rect x="14" y="14" width="12" height="12" fill="#C1503A"></rect>
+      </svg>
+      Journal Selector
+    </h1>
     <p>Paste your article's abstract. The app searches Crossref (falling back to OpenAlex if unavailable) for thematically related work and identifies where it was published, cross-referenced with the Scimago (Scopus) ranking to show quartile, SJR and subject area.</p>
   </header>
 
@@ -97,7 +128,7 @@
     ⚠️ The quartile shown is <strong>SJR / Scopus</strong> (free, public data). The <strong>Web of Science JCR quartile</strong> requires a paid Clarivate subscription and is not available in this tool.
   </div>
 
-  <h2 style="font-size:1.1rem;margin:0 0 .8rem">Find by abstract</h2>
+  <h2 class="section" style="margin:0 0 .8rem">Find by abstract</h2>
   <div class="card">
     <label for="abstract">Abstract</label>
     <textarea id="abstract" placeholder="Paste your article's abstract here, in English or Spanish..."></textarea>
@@ -131,7 +162,7 @@
 
   <div id="resultsWrap"></div>
 
-  <h2 style="font-size:1.1rem;margin:2rem 0 .8rem">Or browse the catalog directly</h2>
+  <h2 class="section" style="margin:2rem 0 .8rem">Or browse the catalog directly</h2>
   <div class="card">
     <p style="margin:0 0 1rem;color:var(--muted);font-size:.85rem">No abstract needed — filter the full Scopus-indexed catalog by subject area, category, country and quartile.</p>
     <div class="filters">

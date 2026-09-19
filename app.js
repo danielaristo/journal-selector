@@ -437,7 +437,7 @@ function passesFilters(item, filters, { skipQuartile = false } = {}) {
 }
 
 function quartileClass(q) {
-  return q ? `p${q}` : "pN";
+  return q ? `q${q}` : "qN";
 }
 
 // Relative topical-affinity score, not a prediction of acceptance odds: the
@@ -510,12 +510,12 @@ function renderResults(matched, unmatchedCount, totalConsidered, quartileFallbac
         <div class="top">
           <h3><a href="${j.scimagoUrl}" target="_blank" rel="noopener">${escapeHtml(j.title)}</a></h3>
           <div class="badges">
-            <span class="pill ${quartileClass(j.quartile)}">${j.quartile || "n/a"}</span>
+            <span class="qbadge ${quartileClass(j.quartile)}">${j.quartile || "n/a"}</span>
             ${rightBadge}
           </div>
         </div>
         <div class="meta">
-          SJR ${j.sjr != null ? j.sjr.toFixed(3) : "—"} · H-index ${j.hIndex ?? "—"} ·
+          <span class="sjr">SJR ${j.sjr != null ? j.sjr.toFixed(3) : "—"}</span> · H-index ${j.hIndex ?? "—"} ·
           ${escapeHtml(j.publisher || "unknown publisher")} · ${escapeHtml(j.country || "unknown country")} ·
           ISSN ${j.issn.join(", ")}
         </div>
@@ -737,11 +737,11 @@ function renderBrowseResults(items, totalMatched) {
         <div class="top">
           <h3><a href="${j.scimagoUrl}" target="_blank" rel="noopener">${escapeHtml(j.title)}</a></h3>
           <div class="badges">
-            <span class="pill ${quartileClass(j.quartile)}">${j.quartile}</span>
+            <span class="qbadge ${quartileClass(j.quartile)}">${j.quartile}</span>
           </div>
         </div>
         <div class="meta">
-          SJR ${j.sjr != null ? j.sjr.toFixed(3) : "—"} · H-index ${j.hIndex ?? "—"} ·
+          <span class="sjr">SJR ${j.sjr != null ? j.sjr.toFixed(3) : "—"}</span> · H-index ${j.hIndex ?? "—"} ·
           ${escapeHtml(j.publisher || "unknown publisher")} · ${escapeHtml(j.country || "unknown country")} ·
           ISSN ${j.issn.join(", ")}
         </div>
