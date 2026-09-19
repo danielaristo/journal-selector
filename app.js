@@ -810,5 +810,15 @@ document.getElementById("browseClearBtn").addEventListener("click", () => {
   document.getElementById("browseStatus").textContent = "";
 });
 
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
+    const target = btn.dataset.tab;
+    document.querySelectorAll(".tab-panel").forEach(panel => {
+      panel.classList.toggle("hidden", panel.dataset.panel !== target);
+    });
+  });
+});
+
 // Preload the dataset in the background so the first search is fast.
 loadData().then(populateBrowseFilters).catch(() => {});

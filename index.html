@@ -63,6 +63,12 @@
   .ac-item{padding:.5rem .7rem;font-size:.85rem;cursor:pointer}
   .ac-item:hover,.ac-item.active{background:var(--surface-2)}
   .ac-empty{padding:.5rem .7rem;font-size:.85rem;color:var(--muted)}
+  .tabs{display:flex;gap:1.8rem;margin:0 0 1.3rem;border-bottom:1px solid var(--border)}
+  .tab-btn{background:none;border:none;padding:.6rem .1rem;font-family:var(--serif);font-weight:600;font-size:1.1rem;
+    color:var(--muted);cursor:pointer;border-radius:0;border-bottom:3px solid transparent;margin-bottom:-1px}
+  .tab-btn:hover{color:var(--text)}
+  .tab-btn.active{color:var(--text);border-bottom-color:var(--accent2)}
+  .tab-panel.hidden{display:none}
   .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:1rem}
   button{font:inherit;font-weight:600;border-radius:9px;padding:.65rem 1.3rem;cursor:pointer;border:1px solid transparent}
   .btn-primary{background:#201E1A;color:#fff;font-family:var(--serif);font-style:italic;font-weight:600;
@@ -128,7 +134,12 @@
     ⚠️ The quartile shown is <strong>SJR / Scopus</strong> (free, public data). The <strong>Web of Science JCR quartile</strong> requires a paid Clarivate subscription and is not available in this tool.
   </div>
 
-  <h2 class="section" style="margin:0 0 .8rem">Find by abstract</h2>
+  <div class="tabs">
+    <button type="button" class="tab-btn active" data-tab="abstract">By abstract</button>
+    <button type="button" class="tab-btn" data-tab="browse">By area</button>
+  </div>
+
+  <section class="tab-panel" data-panel="abstract">
   <div class="card">
     <label for="abstract">Abstract</label>
     <textarea id="abstract" placeholder="Paste your article's abstract here, in English or Spanish..."></textarea>
@@ -161,8 +172,9 @@
   </div>
 
   <div id="resultsWrap"></div>
+  </section>
 
-  <h2 class="section" style="margin:2rem 0 .8rem">Or browse the catalog directly</h2>
+  <section class="tab-panel hidden" data-panel="browse">
   <div class="card">
     <p style="margin:0 0 1rem;color:var(--muted);font-size:.85rem">No abstract needed — filter the full Scopus-indexed catalog by subject area, category, country and quartile.</p>
     <div class="filters">
@@ -196,6 +208,7 @@
   </div>
 
   <div id="browseResultsWrap"></div>
+  </section>
 
   <footer>
     Data: <a href="https://api.crossref.org" target="_blank" rel="noopener">Crossref</a>, with
