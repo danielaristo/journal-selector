@@ -135,6 +135,7 @@
   <div class="tabs">
     <button type="button" class="tab-btn active" data-tab="abstract">By abstract</button>
     <button type="button" class="tab-btn" data-tab="browse">By area</button>
+    <button type="button" class="tab-btn" data-tab="lookup">By name / ISSN</button>
   </div>
 
   <section class="tab-panel" data-panel="abstract">
@@ -206,6 +207,21 @@
   </div>
 
   <div id="browseResultsWrap"></div>
+  </section>
+
+  <section class="tab-panel hidden" data-panel="lookup">
+  <div class="card">
+    <p style="margin:0 0 1rem;color:var(--muted);font-size:.85rem">Look up a specific journal directly by its title or ISSN, and see its full Scopus-indexed profile.</p>
+    <label for="lookupInput">Journal name or ISSN</label>
+    <input type="text" id="lookupInput" placeholder="e.g. Energies, or 1996-1073">
+    <div class="row">
+      <button class="btn-primary" id="lookupBtn">Search</button>
+      <button class="btn-ghost" id="lookupClearBtn" type="button">Clear</button>
+    </div>
+    <div class="status" id="lookupStatus"></div>
+  </div>
+
+  <div id="lookupResultsWrap"></div>
   </section>
 
   <footer>

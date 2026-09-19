@@ -813,6 +813,100 @@ function browseJournals() {
   return results;
 }
 
+// ---- Lookup module (direct search by journal name or ISSN) ----------------
+
+const LOOKUP_MAX_RESULTS = 30;
+
+// An ISSN is always 8 digits (the last one may be the letter X as a check
+// digit), so once everything but [0-9X] is stripped, anything of exactly
+// that length is treated as an ISSN and looked up directly; titles never
+// collapse to exactly 8 such characters. Anything else is matched as a
+// substring against journal titles, ranked exact match first, then
+// starts-with, then contains, then by SJR within each tier.
+function lookupJournals(query) {
+  const q = query.trim();
+  if (!q) return [];
+  const issn = normIssn(q);
+  if (issn.length === 8) {
+    const idx = scimagoData.issnIndex[issn];
+    return idx != null ? [{ journal: scimagoData.journals[idx] }] : [];
+  }
+  const needle = q.toLowerCase();
+  const results = [];
+  for (const journal of scimagoData.journals) {
+    const title = journal.title.toLowerCase();
+    const pos = title.indexOf(needle);
+    if (pos === -1) continue;
+    const rank = title === needle ? 0 : pos === 0 ? 1 : 2;
+    results.push({ journal, rank });
+  }
+  results.sort((a, b) => (a.rank - b.rank) || ((b.journal.sjr || 0) - (a.journal.sjr || 0)));
+  return results;
+}
+
+function renderLookupResults(items, totalMatched, query) {
+  const wrap = document.getElementById("lookupResultsWrap");
+  if (!items.length) {
+    wrap.innerHTML = `<div class="empty">No journal found for "${escapeHtml(query)}". Try a partial ` +
+      `title, or the ISSN with or without the hyphen (e.g. 19961073 or 1996-1073).</div>`;
+    return;
+  }
+  const capped = totalMatched > items.length ? ` — showing the top ${items.length}, refine your search to see the rest` : "";
+  const summary = `<p class="summary">${totalMatched} journal(s) match${capped}.</p>`;
+  const cards = items.map(item => {
+    const j = item.journal;
+    const cats = j.categories.slice(0, 6).map(c =>
+      `<span>${escapeHtml(c.name)}${c.quartile ? ` (${c.quartile})` : ""}</span>`
+    ).join("");
+    const badge = accessBadge(item);
+    return `
+      <div class="jcard">
+        <div class="top">
+          <h3><a href="${j.scimagoUrl}" target="_blank" rel="noopener">${escapeHtml(j.title)}</a></h3>
+          <div class="badges">
+            <span class="qbadge ${quartileClass(j.quartile)}">${j.quartile || "n/a"}</span>
+          </div>
+        </div>
+        <div class="meta">
+          <span class="sjr">SJR ${j.sjr != null ? j.sjr.toFixed(3) : "—"}</span> · H-index ${j.hIndex ?? "—"} ·
+          ${escapeHtml(j.publisher || "unknown publisher")} · ${escapeHtml(j.country || "unknown country")} ·
+          ISSN ${j.issn.join(", ")}
+        </div>
+        ${badge ? `<div class="access">${badge}</div>` : ""}
+        <div class="cats">${cats}</div>
+        <div class="actions">
+          <a class="btn-sjr" href="${j.scimagoUrl}" target="_blank" rel="noopener">View on Scimago (SJR) ↗</a>
+          ${item.homepageUrl ? `<a class="btn-sjr" href="${escapeHtml(item.homepageUrl)}" target="_blank" rel="noopener">Journal website ↗</a>` : ""}
+        </div>
+      </div>`;
+  }).join("");
+  wrap.innerHTML = summary + `<div class="results">${cards}</div>`;
+}
+
+async function runLookup() {
+  const btn = document.getElementById("lookupBtn");
+  const statusEl = document.getElementById("lookupStatus");
+  const query = document.getElementById("lookupInput").value.trim();
+  if (!query) { statusEl.textContent = "Enter a journal name or ISSN."; return; }
+  btn.disabled = true;
+  statusEl.textContent = "Loading journal dataset...";
+  document.getElementById("lookupResultsWrap").innerHTML = "";
+  try {
+    await loadData();
+    const allMatches = lookupJournals(query);
+    const items = allMatches.slice(0, LOOKUP_MAX_RESULTS);
+    statusEl.textContent = "Looking up journal websites and open-access info...";
+    await enrichWithOpenAlexSources(items);
+    statusEl.textContent = "";
+    renderLookupResults(items, allMatches.length, query);
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = `Error: ${err.message}`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 document.getElementById("browseBtn").addEventListener("click", runBrowse);
 document.getElementById("browseClearBtn").addEventListener("click", () => {
   document.getElementById("browseArea").value = "";
@@ -821,6 +915,16 @@ document.getElementById("browseClearBtn").addEventListener("click", () => {
   document.getElementById("browseMaxQuartile").value = "4";
   document.getElementById("browseResultsWrap").innerHTML = "";
   document.getElementById("browseStatus").textContent = "";
+});
+
+document.getElementById("lookupBtn").addEventListener("click", runLookup);
+document.getElementById("lookupInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") runLookup();
+});
+document.getElementById("lookupClearBtn").addEventListener("click", () => {
+  document.getElementById("lookupInput").value = "";
+  document.getElementById("lookupResultsWrap").innerHTML = "";
+  document.getElementById("lookupStatus").textContent = "";
 });
 
 document.querySelectorAll(".tab-btn").forEach(btn => {
