@@ -78,7 +78,6 @@
   .btn-ghost{background:transparent;color:var(--text);border-color:var(--border)}
   .btn-ghost:hover{background:var(--surface-2)}
   .status{font-size:.82rem;color:var(--muted);margin-top:.6rem;min-height:1.2em}
-  .notice{background:var(--q3-bg);color:var(--q3-fg);border-radius:10px;padding:.7rem .9rem;font-size:.8rem;margin-bottom:1.1rem}
   .summary{font-size:.82rem;color:var(--muted);margin:0 0 .8rem}
   .results{display:flex;flex-direction:column;gap:.6rem}
   .jcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;
@@ -129,10 +128,6 @@
     </h1>
     <p>Paste your article's abstract. The app searches Crossref (falling back to OpenAlex if unavailable) for thematically related work and identifies where it was published, cross-referenced with the Scimago (Scopus) ranking to show quartile, SJR and subject area.</p>
   </header>
-
-  <div class="notice">
-    ⚠️ The quartile shown is <strong>SJR / Scopus</strong> (free, public data). The <strong>Web of Science JCR quartile</strong> requires a paid Clarivate subscription and is not available in this tool.
-  </div>
 
   <div class="tabs">
     <button type="button" class="tab-btn active" data-tab="abstract">By abstract</button>
