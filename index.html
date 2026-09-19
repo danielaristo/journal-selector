@@ -8,106 +8,107 @@
 <title>Journal Selector</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;0,600;0,700;1,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#FBFAF7; --surface:#ffffff; --surface-2:#F3F1EA; --text:#201E1A; --muted:#7A7566;
-    --border:#E7E2D6; --accent:#2B3A67; --accent-fg:#ffffff; --accent2:#C1503A;
-    --q1:#2B3A67; --q1-bg:#E9EDF7; --q1-fg:#2B3A67;
-    --q2:#3E6B6B; --q2-bg:#E7F0EF; --q2-fg:#2E5252;
-    --q3:#B98A3D; --q3-bg:#F7EFDD; --q3-fg:#8A6100;
-    --q4:#C1503A; --q4-bg:#FBE9E3; --q4-fg:#B24B31;
-    --neutral-bg:#F3F1EA; --neutral-fg:#5C5748;
-    --serif:'Newsreader',Georgia,serif; --sans:'Public Sans',-apple-system,BlinkMacSystemFont,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --bg:#ffffff; --surface:#ffffff; --surface-2:#FAFBFF; --text:#222222; --muted:#767676;
+    --border:#DFE0E2; --accent:#2456C9; --accent-fg:#ffffff; --accent2:#2456C9;
+    --q1:#2456C9; --q1-bg:#F2F6FF; --q1-fg:#2456C9;
+    --q2:#1F8A70; --q2-bg:#EAF6F2; --q2-fg:#1A7460;
+    --q3:#B0791E; --q3-bg:#FBF2E1; --q3-fg:#8A5F14;
+    --q4:#C1503A; --q4-bg:#FBEAE5; --q4-fg:#A8452F;
+    --neutral-bg:#F1F1EF; --neutral-fg:#63635C;
+    --serif:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:#18171B; --surface:#212027; --surface-2:#2B2A33; --text:#EDE9E1; --muted:#A79E8E;
-      --border:#3A3843; --accent:#8CA0E0; --accent-fg:#12142099; --accent-fg:#10121C; --accent2:#E38468;
-      --q1:#8CA0E0; --q1-bg:#1C2036; --q1-fg:#AEBEED;
-      --q2:#79B8AF; --q2-bg:#16211F; --q2-fg:#9BD4CB;
-      --q3:#E0B564; --q3-bg:#2C2313; --q3-fg:#F0C97E;
-      --q4:#E38468; --q4-bg:#2E1A15; --q4-fg:#F0A088;
-      --neutral-bg:#2B2A33; --neutral-fg:#BDB6A9;
+      --bg:#131417; --surface:#1B1C20; --surface-2:#212328; --text:#E7E7E5; --muted:#9A9A96;
+      --border:#33353B; --accent:#6E9BF2; --accent-fg:#0D1220; --accent2:#6E9BF2;
+      --q1:#6E9BF2; --q1-bg:#182238; --q1-fg:#9DBBF5;
+      --q2:#57C0A2; --q2-bg:#132621; --q2-fg:#8FDCC5;
+      --q3:#DDAC55; --q3-bg:#2A2011; --q3-fg:#EFC888;
+      --q4:#E08468; --q4-bg:#2C1A14; --q4-fg:#F0A88F;
+      --neutral-bg:#212328; --neutral-fg:#B7B7B2;
     }
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:var(--sans);
-    background:var(--bg);color:var(--text);line-height:1.55;font-size:15px;
-    background-image:radial-gradient(circle,color-mix(in srgb, var(--text) 4%, transparent) 1px, transparent 1px);
-    background-size:20px 20px}
-  .wrap{max-width:920px;margin:0 auto;padding:2rem 1.25rem 4rem}
-  header h1{font-family:var(--serif);font-weight:700;font-size:1.7rem;margin:0 0 .5rem;display:flex;align-items:center;gap:.6rem;letter-spacing:-.01em}
-  .mark{flex:0 0 auto;border-radius:3px;overflow:hidden}
-  header p{color:var(--muted);margin:0 0 1.4rem;max-width:68ch;font-size:.92rem}
-  h2.section{font-family:var(--serif);font-weight:600;font-size:1.15rem;color:var(--text)}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem;
-    box-shadow:0 1px 0 color-mix(in srgb, var(--border) 60%, transparent)}
+    background:var(--bg);color:var(--text);line-height:1.55;font-size:15px}
+  .wrap{max-width:920px;margin:0 auto;padding:0 1.25rem 4rem}
+  .topbar{display:flex;justify-content:space-between;align-items:center;padding:1.15rem 0;
+    border-bottom:1px solid var(--border);margin-bottom:1.8rem}
+  header h1{font-weight:700;font-size:1.15rem;margin:0;display:flex;align-items:center;gap:.5rem;color:var(--accent)}
+  .mark{flex:0 0 auto}
+  header p{color:var(--muted);margin:0 0 1.8rem;max-width:68ch;font-size:.92rem}
+  h2.section{font-weight:600;font-size:1.15rem;color:var(--text)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:1rem}
   label{font-weight:600;font-size:.85rem;display:block;margin-bottom:.5rem;font-family:var(--sans)}
-  textarea{width:100%;min-height:160px;resize:vertical;border:1px solid var(--border);border-radius:10px;
+  textarea{width:100%;min-height:160px;resize:vertical;border:1px solid var(--border);border-radius:6px;
     padding:.75rem;font-family:var(--sans);font-size:14px;background:var(--surface-2);color:var(--text);line-height:1.5}
+  textarea:focus,input:focus,select:focus{outline:2px solid color-mix(in srgb, var(--accent) 35%, transparent);outline-offset:1px}
   .counter{font-size:.74rem;color:var(--muted);margin-top:.35rem;text-align:right}
   .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.1rem;margin-top:.5rem}
-  .filter-group legend{font-weight:600;font-size:.8rem;margin-bottom:.45rem;padding:0;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-  .chip-check{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;margin:.15rem .5rem .15rem 0;
-    background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:.3rem .65rem;cursor:pointer;font-weight:500}
+  .filter-group legend{font-weight:700;font-size:.72rem;margin-bottom:.5rem;padding:0;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .chip-check{display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;margin:.15rem .5rem .15rem 0;
+    background:var(--q1-bg);border:1px solid color-mix(in srgb, var(--accent) 30%, var(--border));border-radius:6px;padding:.32rem .65rem;cursor:pointer;font-weight:600;color:var(--q1-fg)}
   .chip-check input{accent-color:var(--accent);cursor:pointer}
-  input[type=text]{width:100%;border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem;
+  input[type=text]{width:100%;border:1px solid var(--border);border-radius:6px;padding:.55rem .7rem;
     background:var(--surface-2);color:var(--text);font:inherit;font-size:.88rem}
-  select{border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem;background:var(--surface-2);
+  select{border:1px solid var(--border);border-radius:6px;padding:.55rem .7rem;background:var(--surface-2);
     color:var(--text);font:inherit;font-size:.88rem;width:100%}
   .ac-list{position:absolute;top:100%;left:0;right:0;z-index:20;margin-top:.25rem;
-    background:var(--surface);border:1px solid var(--border);border-radius:10px;
-    max-height:240px;overflow-y:auto;box-shadow:0 6px 20px rgba(0,0,0,.15);display:none}
+    background:var(--surface);border:1px solid var(--border);border-radius:6px;
+    max-height:240px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12);display:none}
   .ac-list.on{display:block}
   .ac-item{padding:.5rem .7rem;font-size:.85rem;cursor:pointer}
-  .ac-item:hover,.ac-item.active{background:var(--surface-2)}
+  .ac-item:hover,.ac-item.active{background:var(--q1-bg)}
   .ac-empty{padding:.5rem .7rem;font-size:.85rem;color:var(--muted)}
-  .tabs{display:flex;gap:1.8rem;margin:0 0 1.3rem;border-bottom:1px solid var(--border)}
-  .tab-btn{background:none;border:none;padding:.6rem .1rem;font-family:var(--serif);font-weight:600;font-size:1.1rem;
-    color:var(--muted);cursor:pointer;border-radius:0;border-bottom:3px solid transparent;margin-bottom:-1px}
+  .tabs{display:flex;gap:1.8rem;margin:0 0 1.3rem;border-bottom:2px solid var(--border)}
+  .tab-btn{background:none;border:none;padding:.6rem .1rem;font-weight:600;font-size:.98rem;
+    color:var(--muted);cursor:pointer;border-radius:0;border-bottom:2px solid transparent;margin-bottom:-2px}
   .tab-btn:hover{color:var(--text)}
-  .tab-btn.active{color:var(--text);border-bottom-color:var(--accent2)}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
   .tab-panel.hidden{display:none}
   .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:1rem}
-  button{font:inherit;font-weight:600;border-radius:9px;padding:.65rem 1.3rem;cursor:pointer;border:1px solid transparent}
-  .btn-primary{background:#201E1A;color:#fff;font-family:var(--serif);font-style:italic;font-weight:600;
-    border-bottom:3px solid var(--accent2)}
-  .btn-primary:hover{background:var(--accent)}
+  button{font:inherit;font-weight:600;border-radius:6px;padding:.65rem 1.3rem;cursor:pointer;border:1px solid transparent}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:color-mix(in srgb, var(--accent) 85%, black)}
   .btn-primary:disabled{opacity:.5;cursor:not-allowed}
   .btn-ghost{background:transparent;color:var(--text);border-color:var(--border)}
   .btn-ghost:hover{background:var(--surface-2)}
   .status{font-size:.82rem;color:var(--muted);margin-top:.6rem;min-height:1.2em}
   .summary{font-size:.82rem;color:var(--muted);margin:0 0 .8rem}
-  .results{display:flex;flex-direction:column;gap:.6rem}
-  .jcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;
-    box-shadow:0 1px 0 color-mix(in srgb, var(--border) 60%, transparent)}
+  .results{display:flex;flex-direction:column}
+  .jcard{background:var(--surface);border:none;border-top:1px solid var(--border);padding:1rem 0}
+  .results .jcard:last-child{border-bottom:1px solid var(--border)}
   .jcard .top{display:flex;justify-content:space-between;gap:.8rem;align-items:flex-start;flex-wrap:wrap}
-  .jcard h3{margin:0;font-size:1.08rem;font-family:var(--serif);font-weight:600}
+  .jcard h3{margin:0;font-size:1.02rem;font-weight:600}
   .jcard h3 a{color:var(--text);text-decoration:none}
   .jcard h3 a:hover{color:var(--accent);text-decoration:underline}
   .badges{display:flex;gap:.4rem;flex-wrap:wrap;flex:0 0 auto;align-items:center}
-  .pill{font-size:.68rem;font-weight:700;padding:.22rem .55rem;border-radius:999px;white-space:nowrap}
-  .qbadge{font-size:.68rem;font-weight:700;padding:.24rem .55rem .24rem .48rem;border-radius:10px 3px 3px 3px;
-    white-space:nowrap;color:#fff}
-  .qQ1{background:var(--q1)} .qQ2{background:var(--q2)} .qQ3{background:var(--q3)} .qQ4{background:var(--q4)}
-  .qN{background:var(--neutral-fg)}
+  .pill{font-size:.68rem;font-weight:700;padding:.22rem .55rem;border-radius:4px;white-space:nowrap}
+  .qbadge{font-size:.7rem;font-weight:700;padding:.2rem .5rem;border-radius:4px;
+    white-space:nowrap;background:transparent;border:1px solid currentColor}
+  .qQ1{color:var(--q1)} .qQ2{color:var(--q2)} .qQ3{color:var(--q3)} .qQ4{color:var(--q4)}
+  .qN{color:var(--neutral-fg)}
   .pQ1{background:var(--q1-bg);color:var(--q1-fg)} .pQ2{background:var(--q2-bg);color:var(--q2-fg)}
   .pQ3{background:var(--q3-bg);color:var(--q3-fg)} .pQ4{background:var(--q4-bg);color:var(--q4-fg)}
   .pN{background:var(--neutral-bg);color:var(--neutral-fg)}
-  .pMatch{background:transparent;color:var(--accent2);border:1px solid var(--accent2)}
+  .pMatch{background:transparent;color:var(--accent);border:1px solid var(--accent)}
   .pOA{background:var(--q1-bg);color:var(--q1-fg)}
   .pApc{background:var(--q3-bg);color:var(--q3-fg)}
   .jcard .meta{font-size:.8rem;color:var(--muted);margin:.4rem 0 0}
-  .jcard .meta .sjr{font-family:var(--mono);color:var(--accent);font-weight:500;font-size:.79rem}
+  .jcard .meta .sjr{color:var(--text);font-weight:600;font-size:.8rem}
   .jcard .access{margin-top:.45rem}
   .jcard .cats{font-size:.76rem;color:var(--muted);margin-top:.45rem;display:flex;flex-wrap:wrap;gap:.3rem}
-  .jcard .cats span{background:var(--surface-2);border-radius:6px;padding:.12rem .45rem}
+  .jcard .cats span{background:var(--surface-2);border-radius:4px;padding:.12rem .45rem}
   .jcard .actions{margin-top:.65rem;display:flex;gap:.5rem;flex-wrap:wrap}
   .btn-sjr{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:600;
-    padding:.35rem .75rem;border-radius:8px;background:var(--surface-2);color:var(--accent);
+    padding:.4rem .8rem;border-radius:5px;background:transparent;color:var(--text);
     border:1px solid var(--border);text-decoration:none}
-  .btn-sjr:hover{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+  .btn-sjr:hover{border-color:var(--accent);color:var(--accent)}
+  .jcard .actions a:first-child{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .jcard .actions a:first-child:hover{background:color-mix(in srgb, var(--accent) 85%, black);color:#fff}
   .empty{color:var(--muted);font-size:.9rem;text-align:center;padding:2rem 0}
   footer{margin-top:2.5rem;color:var(--muted);font-size:.78rem;border-top:1px solid var(--border);padding-top:1.1rem}
   footer a{color:var(--accent)}
@@ -116,18 +117,20 @@
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>
-      <svg class="mark" width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
-        <rect x="0" y="0" width="12" height="12" fill="#2B3A67"></rect>
-        <rect x="14" y="0" width="12" height="12" fill="#3E6B6B"></rect>
-        <rect x="0" y="14" width="12" height="12" fill="#B98A3D"></rect>
-        <rect x="14" y="14" width="12" height="12" fill="#C1503A"></rect>
-      </svg>
-      Journal Selector
-    </h1>
-    <p>Paste your article's abstract. The app uses Crossref and OpenAlex to find thematically related work and identify where it was published, cross-referenced with the Scimago (Scopus) ranking to show quartile, SJR and subject area.</p>
-  </header>
+  <div class="topbar">
+    <header>
+      <h1>
+        <svg class="mark" width="20" height="20" viewBox="0 0 18 18" aria-hidden="true">
+          <rect x="0" y="0" width="8" height="8" rx="2" fill="#2456C9"></rect>
+          <rect x="10" y="0" width="8" height="8" rx="2" fill="#2456C9" opacity="0.5"></rect>
+          <rect x="0" y="10" width="8" height="8" rx="2" fill="#2456C9" opacity="0.5"></rect>
+          <rect x="10" y="10" width="8" height="8" rx="2" fill="#2456C9" opacity="0.25"></rect>
+        </svg>
+        Journal Selector
+      </h1>
+    </header>
+  </div>
+  <p style="color:var(--muted);margin:0 0 1.8rem;max-width:68ch;font-size:.92rem">Paste your article's abstract. The app uses Crossref and OpenAlex to find thematically related work and identify where it was published, cross-referenced with the Scimago (Scopus) ranking to show quartile, SJR and subject area.</p>
 
   <div class="tabs">
     <button type="button" class="tab-btn active" data-tab="abstract">By abstract</button>
