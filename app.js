@@ -912,7 +912,7 @@ document.getElementById("browseClearBtn").addEventListener("click", () => {
   document.getElementById("browseArea").value = "";
   document.getElementById("browseCategory").value = "";
   document.getElementById("browseCountry").value = "";
-  document.getElementById("browseMaxQuartile").value = "4";
+  document.getElementById("browseMaxQuartile").value = "1";
   document.getElementById("browseResultsWrap").innerHTML = "";
   document.getElementById("browseStatus").textContent = "";
 });
@@ -945,6 +945,15 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 // existed yet to respond to it.
 setupAutocomplete(document.getElementById("browseCategory"), currentCategoryOptions);
 setupAutocomplete(document.getElementById("browseCountry"), () => allCountriesSorted || []);
+
+// Category is a free-text field, not tied to the area select, so switching
+// area left whatever category text was already typed in place even though
+// it no longer belongs to the new area's category list — silently zeroing
+// out results instead of surfacing as an obvious error. Clearing it on every
+// area change keeps the two fields consistent with each other.
+document.getElementById("browseArea").addEventListener("change", () => {
+  document.getElementById("browseCategory").value = "";
+});
 
 // The area/category/country fields depend on the dataset (options, or the
 // area->category map); disable them with a loading placeholder until it's
