@@ -67,9 +67,15 @@
         <label for="count">Candidatos</label>
         <input type="number" id="count" value="8" min="1" max="25">
       </div>
-      <div class="field" style="flex:0 0 110px">
-        <label for="area">Área</label>
-        <input type="text" id="area" placeholder="e.g. Energy">
+    </div>
+    <div class="row" style="margin-top:.8rem">
+      <div class="field">
+        <label for="area">Área (de tu checklist)</label>
+        <input type="text" id="area" placeholder="e.g. Engineering">
+      </div>
+      <div class="field">
+        <label for="category">Categoría (de tu checklist)</label>
+        <input type="text" id="category" placeholder="e.g. Mechanical Engineering">
       </div>
       <div class="field" style="flex:0 0 90px">
         <label for="quartile">Cuartil</label>
@@ -91,7 +97,7 @@
   <div id="resultsWrap"></div>
 
   <div class="card" id="copyCard" style="display:none">
-    <label for="output">Fila lista para pegar en la hoja (DOI · Título · Abstract · ISSN · Revista · Área · Cuartil)</label>
+    <label for="output">Fila lista para pegar — haz clic en la celda "Area" de tu fila en el Excel del checklist y pega (Area · Categoria · Cuartil · ISSN · DOI · Titulo · Abstract, en ese orden, calzando con las columnas B-H)</label>
     <textarea id="output" readonly></textarea>
     <div class="row" style="margin-top:.7rem">
       <button id="copyBtn" type="button">Copiar al portapapeles</button>
@@ -209,14 +215,19 @@ function renderResults() {
   });
 }
 
+// Column order matches the checklist workbook exactly (B-H: Area,
+// Categoria, Cuartil, ISSN, DOI, Titulo, Abstract) so pasting starting
+// from the "Area" cell of the row being worked on drops every field into
+// its own column with no re-typing or reordering by hand.
 function buildOutput() {
   const checked = document.querySelector('input[name="cand"]:checked');
   if (!checked) return;
   const c = lastCandidates[parseInt(checked.value, 10)];
   const area = $("area").value.trim();
+  const category = $("category").value.trim();
   const quartile = $("quartile").value;
   const issn = hyphenateIssn(normIssn($("issn").value));
-  const row = [c.doi, c.title, c.abstract, issn, c.journal, area, quartile].join("\t");
+  const row = [area, category, quartile, issn, c.doi, c.title, c.abstract].join("\t");
   $("output").value = row;
   $("copyCard").style.display = "block";
 }
@@ -227,6 +238,7 @@ $("clearBtn").addEventListener("click", () => {
   $("issn").value = "";
   $("count").value = "8";
   $("area").value = "";
+  $("category").value = "";
   $("resultsWrap").innerHTML = "";
   $("copyCard").style.display = "none";
   $("status").textContent = "";
