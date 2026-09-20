@@ -1,6 +1,6 @@
 "use strict";
 
-const DATA_URL = "data/scimago_2024.json";
+const DATA_URL = "data/scimago_2025.json";
 const OPENALEX_URL = "https://api.openalex.org/works";
 const OPENALEX_SOURCES_URL = "https://api.openalex.org/sources";
 const OPENALEX_PER_PAGE = 100;

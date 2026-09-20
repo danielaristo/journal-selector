@@ -8,7 +8,7 @@ desde el navegador (botón "Download data" -> CSV) o usar un espejo público
 conocido (ej. bibliotecas universitarias que republican el export anual).
 
 Uso:
-    python3 scripts/prep_scimago.py <ruta_csv_entrada> data/scimago_2024.json
+    python3 scripts/prep_scimago.py <ruta_csv_entrada> data/scimago_2025.json
 """
 import csv
 import json
