@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Candidatos OpenAlex — Journal Selector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff; --surface:#ffffff; --surface-2:#FAFBFF; --text:#222222; --muted:#767676;
+    --border:#DFE0E2; --accent:#2456C9; --accent-fg:#ffffff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#131417; --surface:#1B1C20; --surface-2:#212328; --text:#E7E7E5; --muted:#9A9A96;
+      --border:#33353B; --accent:#6E9BF2; --accent-fg:#0D1220;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.5;font-size:15px}
+  .wrap{max-width:760px;margin:0 auto;padding:2rem 1.25rem 4rem}
+  header h1{font-weight:700;font-size:1.3rem;margin:0 0 .3rem;color:var(--accent)}
+  header p{color:var(--muted);margin:0 0 1.6rem;font-size:.9rem;max-width:65ch}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:1.2rem}
+  .row{display:flex;gap:.8rem;flex-wrap:wrap;align-items:flex-end}
+  .field{flex:1 1 140px;min-width:120px}
+  label{font-weight:600;font-size:.8rem;display:block;margin-bottom:.4rem}
+  input[type=text],input[type=number],select{
+    width:100%;border:1px solid var(--border);border-radius:6px;padding:.55rem .6rem;
+    background:var(--surface-2);color:var(--text);font:inherit;font-size:.88rem}
+  button{font:inherit;font-weight:600;border-radius:6px;padding:.6rem 1.2rem;cursor:pointer;
+    border:1px solid transparent;background:var(--accent);color:#fff}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .btn-ghost{background:transparent;color:var(--text);border-color:var(--border)}
+  .status{font-size:.82rem;color:var(--muted);margin-top:.7rem;min-height:1.2em}
+  .results{display:flex;flex-direction:column;margin-top:1rem}
+  .cand{border-top:1px solid var(--border);padding:.9rem 0;display:flex;gap:.7rem;align-items:flex-start}
+  .results .cand:last-child{border-bottom:1px solid var(--border)}
+  .cand input[type=radio]{margin-top:.3rem;flex:0 0 auto}
+  .cand .body{min-width:0;flex:1}
+  .cand h3{margin:0 0 .3rem;font-size:.98rem}
+  .cand .meta{font-size:.76rem;color:var(--muted);margin-bottom:.4rem}
+  .cand .abs{font-size:.85rem;color:var(--text)}
+  .cand .abs.clamped{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .toggle{font-size:.78rem;color:var(--accent);cursor:pointer;margin-top:.3rem;display:inline-block}
+  .empty{color:var(--muted);font-size:.9rem;text-align:center;padding:1.5rem 0}
+  textarea{width:100%;min-height:70px;border:1px solid var(--border);border-radius:6px;
+    padding:.6rem;font-family:ui-monospace,monospace;font-size:12px;background:var(--surface-2);color:var(--text)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Candidatos OpenAlex</h1>
+    <p>Herramienta interna para curar la muestra del estudio de validación. Pega el ISSN de una revista (obtenido en la pestaña "By area" de Journal Selector), elige cuántos candidatos ver, y marca <strong>uno solo</strong> para copiarlo listo a la hoja compartida. Máximo 1 artículo por revista.</p>
+  </header>
+
+  <div class="card">
+    <div class="row">
+      <div class="field">
+        <label for="issn">ISSN de la revista</label>
+        <input type="text" id="issn" placeholder="e.g. 1996-1073">
+      </div>
+      <div class="field" style="flex:0 0 90px">
+        <label for="count">Candidatos</label>
+        <input type="number" id="count" value="8" min="1" max="25">
+      </div>
+      <div class="field" style="flex:0 0 110px">
+        <label for="area">Área</label>
+        <input type="text" id="area" placeholder="e.g. Energy">
+      </div>
+      <div class="field" style="flex:0 0 90px">
+        <label for="quartile">Cuartil</label>
+        <select id="quartile">
+          <option value="Q1">Q1</option>
+          <option value="Q2">Q2</option>
+          <option value="Q3">Q3</option>
+          <option value="Q4">Q4</option>
+        </select>
+      </div>
+    </div>
+    <div class="row" style="margin-top:.9rem">
+      <button id="searchBtn">Buscar candidatos</button>
+      <button class="btn-ghost" id="clearBtn" type="button">Limpiar</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div id="resultsWrap"></div>
+
+  <div class="card" id="copyCard" style="display:none">
+    <label for="output">Fila lista para pegar en la hoja (DOI · Título · Abstract · ISSN · Revista · Área · Cuartil)</label>
+    <textarea id="output" readonly></textarea>
+    <div class="row" style="margin-top:.7rem">
+      <button id="copyBtn" type="button">Copiar al portapapeles</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+// Same free key used across the Journal Selector family of tools — gives
+// this page its own OpenAlex budget instead of sharing the anonymous
+// per-IP pool.
+const OPENALEX_API_KEY = "EFzVGljUdkP62TGAMLu0nN";
+const MAILTO = "danielaristo@yahoo.com";
+
+const $ = id => document.getElementById(id);
+
+function normIssn(raw) {
+  return (raw || "").replace(/[^0-9Xx]/g, "").toUpperCase();
+}
+function hyphenateIssn(issn) {
+  return issn.length === 8 ? issn.slice(0, 4) + "-" + issn.slice(4) : issn;
+}
+
+// abstract_inverted_index maps each word to the list of positions it
+// occupies in the original text (OpenAlex stores it this way instead of
+// plain text for copyright reasons). Rebuilding it is just placing each
+// word back at its recorded position(s).
+function reconstructAbstract(invertedIndex) {
+  if (!invertedIndex) return "";
+  const positions = [];
+  for (const [word, idxs] of Object.entries(invertedIndex)) {
+    for (const i of idxs) positions[i] = word;
+  }
+  return positions.join(" ").trim();
+}
+
+function escapeHtml(s) {
+  return (s || "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+let lastCandidates = [];
+
+async function runSearch() {
+  const issnRaw = $("issn").value.trim();
+  const count = Math.min(25, Math.max(1, parseInt($("count").value, 10) || 8));
+  const statusEl = $("status");
+  const btn = $("searchBtn");
+  $("resultsWrap").innerHTML = "";
+  $("copyCard").style.display = "none";
+
+  const issn = normIssn(issnRaw);
+  if (issn.length !== 8) {
+    statusEl.textContent = "Escribe un ISSN válido (8 dígitos, con o sin guión).";
+    return;
+  }
+
+  btn.disabled = true;
+  statusEl.textContent = "Buscando en OpenAlex...";
+  try {
+    const filter = `primary_location.source.issn:${hyphenateIssn(issn)},has_abstract:true`;
+    const url = `https://api.openalex.org/works?filter=${encodeURIComponent(filter)}` +
+      `&per-page=${count}&select=id,doi,title,publication_year,abstract_inverted_index,primary_location` +
+      `&mailto=${encodeURIComponent(MAILTO)}&api_key=${encodeURIComponent(OPENALEX_API_KEY)}`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`OpenAlex respondió ${r.status}`);
+    const data = await r.json();
+    const results = data.results || [];
+    lastCandidates = results.map(w => ({
+      doi: (w.doi || "").replace("https://doi.org/", ""),
+      title: w.title || "(sin título)",
+      year: w.publication_year || "?",
+      abstract: reconstructAbstract(w.abstract_inverted_index),
+      journal: (w.primary_location && w.primary_location.source && w.primary_location.source.display_name) || "",
+    }));
+    statusEl.textContent = lastCandidates.length
+      ? `${lastCandidates.length} candidato(s) encontrados. Marca uno solo.`
+      : "";
+    renderResults();
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = `Error: ${err.message}`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderResults() {
+  const wrap = $("resultsWrap");
+  if (!lastCandidates.length) {
+    wrap.innerHTML = `<div class="empty">No se encontraron artículos con abstract para ese ISSN.</div>`;
+    return;
+  }
+  const cards = lastCandidates.map((c, i) => `
+    <div class="cand">
+      <input type="radio" name="cand" id="cand${i}" value="${i}">
+      <div class="body">
+        <h3><label for="cand${i}">${escapeHtml(c.title)}</label></h3>
+        <div class="meta">${c.year} · ${escapeHtml(c.journal)} · doi:${escapeHtml(c.doi)}</div>
+        <div class="abs clamped" id="abs${i}">${escapeHtml(c.abstract) || "(sin abstract reconstruible)"}</div>
+        <span class="toggle" data-idx="${i}">Ver completo</span>
+      </div>
+    </div>`).join("");
+  wrap.innerHTML = `<div class="results">${cards}</div>`;
+
+  wrap.querySelectorAll(".toggle").forEach(el => {
+    el.addEventListener("click", () => {
+      const abs = $("abs" + el.dataset.idx);
+      abs.classList.toggle("clamped");
+      el.textContent = abs.classList.contains("clamped") ? "Ver completo" : "Ver menos";
+    });
+  });
+  wrap.querySelectorAll('input[name="cand"]').forEach(el => {
+    el.addEventListener("change", buildOutput);
+  });
+}
+
+function buildOutput() {
+  const checked = document.querySelector('input[name="cand"]:checked');
+  if (!checked) return;
+  const c = lastCandidates[parseInt(checked.value, 10)];
+  const area = $("area").value.trim();
+  const quartile = $("quartile").value;
+  const issn = hyphenateIssn(normIssn($("issn").value));
+  const row = [c.doi, c.title, c.abstract, issn, c.journal, area, quartile].join("\t");
+  $("output").value = row;
+  $("copyCard").style.display = "block";
+}
+
+$("searchBtn").addEventListener("click", runSearch);
+$("issn").addEventListener("keydown", e => { if (e.key === "Enter") runSearch(); });
+$("clearBtn").addEventListener("click", () => {
+  $("issn").value = "";
+  $("count").value = "8";
+  $("area").value = "";
+  $("resultsWrap").innerHTML = "";
+  $("copyCard").style.display = "none";
+  $("status").textContent = "";
+  lastCandidates = [];
+});
+$("copyBtn").addEventListener("click", () => {
+  $("output").select();
+  navigator.clipboard.writeText($("output").value).then(() => {
+    $("status").textContent = "Copiado al portapapeles.";
+  }).catch(() => {
+    document.execCommand("copy");
+    $("status").textContent = "Copiado al portapapeles.";
+  });
+});
+</script>
+</body>
+</html>
