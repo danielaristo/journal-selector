@@ -71,11 +71,11 @@
     <div class="row" style="margin-top:.8rem">
       <div class="field">
         <label for="area">Área (de tu checklist)</label>
-        <input type="text" id="area" placeholder="e.g. Engineering">
+        <select id="area"></select>
       </div>
       <div class="field">
         <label for="category">Categoría (de tu checklist)</label>
-        <input type="text" id="category" placeholder="e.g. Mechanical Engineering">
+        <select id="category"></select>
       </div>
       <div class="field" style="flex:0 0 90px">
         <label for="quartile">Cuartil</label>
@@ -113,7 +113,33 @@
 const OPENALEX_API_KEY = "EFzVGljUdkP62TGAMLu0nN";
 const MAILTO = "danielaristo@yahoo.com";
 
+// The exact area -> category assignments from the study's checklists
+// (Jessica Luna: Engineering, Medicine, Computer Science; Allison
+// Restrepo: Social Sciences, Economics/Econometrics/Finance, Agricultural
+// and Biological Sciences), combined into one dropdown so either student
+// can use the same page without typing area/category by hand.
+const AREA_CATEGORIES = {
+  "Engineering": ["Mechanical Engineering", "Electrical and Electronic Engineering", "Civil and Structural Engineering"],
+  "Medicine": ["Public Health, Environmental and Occupational Health", "Cardiology and Cardiovascular Medicine", "Oncology"],
+  "Computer Science": ["Artificial Intelligence", "Software", "Information Systems"],
+  "Social Sciences": ["Education", "Sociology and Political Science", "Linguistics and Language"],
+  "Economics, Econometrics and Finance": ["Economics and Econometrics", "Finance", "Economics, Econometrics and Finance (miscellaneous)"],
+  "Agricultural and Biological Sciences": ["Agronomy and Crop Science", "Animal Science and Zoology", "Food Science"],
+};
+
 const $ = id => document.getElementById(id);
+
+function populateAreaCategory() {
+  const areaSel = $("area");
+  areaSel.innerHTML = Object.keys(AREA_CATEGORIES)
+    .map(a => `<option value="${a}">${a}</option>`).join("");
+  populateCategories();
+}
+function populateCategories() {
+  const area = $("area").value;
+  const cats = AREA_CATEGORIES[area] || [];
+  $("category").innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join("");
+}
 
 function normIssn(raw) {
   return (raw || "").replace(/[^0-9Xx]/g, "").toUpperCase();
@@ -234,16 +260,18 @@ function buildOutput() {
 
 $("searchBtn").addEventListener("click", runSearch);
 $("issn").addEventListener("keydown", e => { if (e.key === "Enter") runSearch(); });
+$("area").addEventListener("change", populateCategories);
 $("clearBtn").addEventListener("click", () => {
   $("issn").value = "";
   $("count").value = "8";
-  $("area").value = "";
-  $("category").value = "";
+  $("area").selectedIndex = 0;
+  populateCategories();
   $("resultsWrap").innerHTML = "";
   $("copyCard").style.display = "none";
   $("status").textContent = "";
   lastCandidates = [];
 });
+populateAreaCategory();
 $("copyBtn").addEventListener("click", () => {
   $("output").select();
   navigator.clipboard.writeText($("output").value).then(() => {
