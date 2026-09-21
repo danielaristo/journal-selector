@@ -560,7 +560,16 @@ async function runSearch() {
   document.getElementById("resultsWrap").innerHTML = "";
   try {
     await loadData();
-    const autoKeywords = rankKeywords(text);
+    // Optional: when a title is given, its words are worth more than the
+    // abstract's — titles pack the paper's most distinctive terms into a
+    // handful of words, with none of the background/methodology prose that
+    // dilutes an abstract. Repeating the title ahead of the abstract lets
+    // the existing frequency-based scoring in rankKeywords() do the
+    // weighting on its own (title words start with a higher count), instead
+    // of adding a second, separate bonus mechanism to maintain.
+    const title = document.getElementById("title").value.trim();
+    const textForKeywords = title ? `${title} `.repeat(3) + text : text;
+    const autoKeywords = rankKeywords(textForKeywords);
     const filters = getFilters();
     const { keywords, matched, unmatchedCount, rounds } = await adaptiveSearch(autoKeywords, filters, (kws, roundNum) => {
       setStatus(`Search ${roundNum}: ${kws.join(", ")}...`);
@@ -619,6 +628,7 @@ function updateCounter() {
 document.getElementById("abstract").addEventListener("input", updateCounter);
 document.getElementById("searchBtn").addEventListener("click", runSearch);
 document.getElementById("clearBtn").addEventListener("click", () => {
+  document.getElementById("title").value = "";
   document.getElementById("abstract").value = "";
   document.getElementById("keywordsInput").value = "";
   document.getElementById("filterText").value = "";
