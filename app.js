@@ -807,13 +807,13 @@ function browseJournals() {
   const area = document.getElementById("browseArea").value;
   const category = document.getElementById("browseCategory").value.trim().toLowerCase();
   const country = document.getElementById("browseCountry").value.trim().toLowerCase();
-  const maxQuartileRank = parseInt(document.getElementById("browseMaxQuartile").value, 10);
+  const targetQuartileRank = parseInt(document.getElementById("browseMaxQuartile").value, 10);
   const results = [];
   for (const journal of scimagoData.journals) {
     if (journal.type !== "journal") continue;
     if (!journal.quartile) continue;
     const rank = parseInt(journal.quartile.slice(1), 10);
-    if (rank > maxQuartileRank) continue;
+    if (rank !== targetQuartileRank) continue;
     if (area && !journal.areas.includes(area)) continue;
     if (category && !journal.categories.some(c => c.name.toLowerCase().includes(category))) continue;
     if (country && !(journal.country || "").toLowerCase().includes(country)) continue;
