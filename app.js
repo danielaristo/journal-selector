@@ -423,6 +423,22 @@ function getUserKeywords() {
   return raw.split(/[,;]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
 }
 
+// For users who don't have a ready-made keyword list: reuses the same
+// frequency-based ranking the main search already runs on the abstract, so
+// the suggestion is consistent with what actually drives the results.
+function suggestKeywords() {
+  const title = document.getElementById("title").value.trim();
+  const abstract = document.getElementById("abstract").value.trim();
+  const text = title ? `${title} ${title} ${abstract}` : abstract;
+  if (text.split(/\s+/).filter(Boolean).length < 15) {
+    setStatus("Paste a more complete abstract first, then click \"Suggest from abstract\".");
+    return;
+  }
+  const ranked = rankKeywords(text).slice(0, MAX_USER_KEYWORDS);
+  document.getElementById("keywordsInput").value = ranked.join(", ");
+  setStatus(`Suggested ${ranked.length} keywords from your abstract -- edit them if you'd like.`);
+}
+
 function passesFilters(item, filters, { skipQuartile = false } = {}) {
   const j = item.journal;
   if (j.type !== "journal") return false;
@@ -626,6 +642,7 @@ function updateCounter() {
 }
 
 document.getElementById("abstract").addEventListener("input", updateCounter);
+document.getElementById("suggestKeywordsBtn").addEventListener("click", suggestKeywords);
 document.getElementById("searchBtn").addEventListener("click", runSearch);
 document.getElementById("clearBtn").addEventListener("click", () => {
   document.getElementById("title").value = "";

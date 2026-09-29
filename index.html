@@ -148,9 +148,12 @@
     <textarea id="abstract" placeholder="Paste your article's abstract here, in English or Spanish..."></textarea>
     <div class="counter" id="counter">0 words</div>
 
-    <label for="keywordsInput" style="margin-top:.9rem">Keywords <span style="color:var(--q4-fg)">*</span> (5–8, comma-separated)</label>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;flex-wrap:wrap;margin-top:.9rem">
+      <label for="keywordsInput" style="margin-top:0">Keywords <span style="color:var(--q4-fg)">*</span> (5–8, comma-separated)</label>
+      <button type="button" id="suggestKeywordsBtn" class="btn-ghost" style="padding:.3rem .7rem;font-size:.78rem;font-weight:600">Suggest from abstract</button>
+    </div>
     <input type="text" id="keywordsInput" placeholder="e.g. vehicle routing, cold chain logistics, refrigerated transport, operations research, thermodynamic modeling" required>
-    <div class="counter" style="text-align:left">The abstract drives the main search. These keywords are only used to recommend journals by keyword if too few (or none) in your quartile turn up directly.</div>
+    <div class="counter" style="text-align:left">The abstract drives the main search. These keywords are only used to recommend journals by keyword if too few (or none) in your quartile turn up directly. No keywords in mind? Paste your abstract above, then click "Suggest from abstract".</div>
 
     <div class="filters">
       <fieldset class="filter-group" style="border:none;padding:0;margin:0">
