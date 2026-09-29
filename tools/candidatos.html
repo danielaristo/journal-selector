@@ -165,6 +165,14 @@ function escapeHtml(s) {
   return (s || "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 
+// Some OpenAlex-reconstructed abstracts carry stray tab/newline characters
+// (inherited from the original PDF text extraction). Left in, those act as
+// extra column/row breaks when the tab-separated row below is pasted into
+// a spreadsheet, scattering the abstract across unrelated columns.
+function tsvSafe(s) {
+  return (s || "").replace(/[\t\r\n]+/g, " ").trim();
+}
+
 let lastCandidates = [];
 
 async function runSearch() {
@@ -253,7 +261,7 @@ function buildOutput() {
   const category = $("category").value.trim();
   const quartile = $("quartile").value;
   const issn = hyphenateIssn(normIssn($("issn").value));
-  const row = [area, category, quartile, issn, c.doi, c.title, c.abstract].join("\t");
+  const row = [area, category, quartile, issn, c.doi, c.title, c.abstract].map(tsvSafe).join("\t");
   $("output").value = row;
   $("copyCard").style.display = "block";
 }
