@@ -29,7 +29,7 @@ def parse_int(value):
 
 
 def parse_issns(raw):
-    return [re.sub(r"\D", "", part) for part in raw.split(",") if part.strip()]
+    return [re.sub(r"[^0-9Xx]", "", part).upper() for part in raw.split(",") if part.strip()]
 
 
 def parse_categories(raw):
